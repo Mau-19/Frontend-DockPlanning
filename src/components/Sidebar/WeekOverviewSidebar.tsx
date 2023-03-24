@@ -21,10 +21,10 @@ export const WeekOverviewSidebar: React.FC<props> = ({ mapping }) => {
     >
       {mapping?.map((item, index) => (
         <motion.div
-          key={index}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          key={item}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
         >
           <Row
             style={{
