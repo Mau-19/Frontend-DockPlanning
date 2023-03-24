@@ -4,6 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { PrivateRoutes } from "./utils/PrivateRoutes";
 import { Header } from "./components/Header";
 import { WarehouseWeekOverview } from "./pages/WarehouseWeekOverview";
+import { DockWeekOverview } from "./pages/DockWeekOverview/DockWeekOverview";
 import { Login } from "./pages/Login";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -15,7 +16,7 @@ function App() {
       <Routes>
         <Route element={<PrivateRoutes />}>
           <Route path="/" element={<WarehouseWeekOverview />} />
-          <Route path="/test" element={<h1>test</h1>} />
+          <Route path="/dock/:dockId/:weekNr" element={<DockWeekOverview />} />
         </Route>
         <Route path="/login" element={<Login />} />
       </Routes>

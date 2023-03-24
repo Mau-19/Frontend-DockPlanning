@@ -1,37 +1,37 @@
 import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
-import { DockOverviewRow } from "./DockOverviewRow";
+import { DockOverviewCard } from "./DockOverviewCard";
 import { Dock } from "../../types/Dock";
 
 interface Props {
   docks: Dock[];
-  reservations: any[];
+  weeks: number[];
 }
 
-export const DockOverview: React.FC<Props> = ({ reservations, docks }) => {
+export const DockOverview: React.FC<Props> = ({ docks, weeks }) => {
   return (
-    <Container fluid style={{ display: "flex", flexDirection: "column" }}>
-      {/* {reservations.map((reservationWeekArray, index) =>
-        reservationWeekArray == reservations[reservations.length - 1] ? (
-          <DockOverviewRow
-            key={index}
-            reservationWeekArray={reservationWeekArray}
-          />
-        ) : (
-          <DockOverviewRow
-            key={index}
-            reservationWeekArray={reservationWeekArray}
-          />
-        )
-      )} */}
-      {docks.map((dock) => (
-        <div>
-          <span>Active: {dock.active}</span>
-          <span>Code: {dock.code}</span>
-          <span>Closing: {dock.params.closing_time}</span>
-          <span>Opening: {dock.params.opening_time}</span>
-          <span>Warehouse: {dock.params.warehouseId}</span>
-        </div>
+    <Container
+      fluid
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        overflowX: "scroll",
+        overflowY: "hidden",
+      }}
+    >
+      {weeks.map((week, index) => (
+        <Row key={index} style={{ flexWrap: "noWrap" }}>
+          {docks.map((dock, index) => (
+            <DockOverviewCard
+              dock={dock}
+              key={index}
+              index={index}
+              weekNr={week}
+            />
+          ))}
+        </Row>
       ))}
     </Container>
   );

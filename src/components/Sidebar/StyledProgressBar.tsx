@@ -3,15 +3,15 @@ import { useEffect } from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
 
 interface Props {
-  currentReservations: number;
-  maxReservations: number;
+  currentReservations?: number;
+  maxReservations?: number;
 }
 
 export const StyledProgressBar: React.FC<Props> = ({
   currentReservations,
   maxReservations,
 }) => {
-  const percentage = (currentReservations / maxReservations) * 100;
+  const percentage = 40;
   {
     if (percentage <= 25) {
       return (
@@ -27,8 +27,8 @@ export const StyledProgressBar: React.FC<Props> = ({
     } else if (percentage > 25 && percentage <= 50) {
       return (
         <ProgressBar
-          max={maxReservations}
-          now={currentReservations}
+          max={200}
+          now={129}
           variant="success"
           style={{
             paddingLeft: "0px",

@@ -34,7 +34,7 @@ export const LoginForm = () => {
         }
       });
 
-    if (response.status == 200) {
+    if (response?.status == 200) {
       localStorage.setItem("user", JSON.stringify(response.data));
       setUser({
         id: response.data.id,
@@ -53,8 +53,15 @@ export const LoginForm = () => {
         background: "white",
         borderRadius: "8px",
         padding: "24px 32px",
+        width: "400px",
+        marginTop: "16px",
       }}
     >
+      {error && (
+        <Alert variant="danger" style={{ marginTop: "8px" }}>
+          {error}
+        </Alert>
+      )}
       <Form.Group controlId="formUsername">
         <Form.Label style={{ fontWeight: "bold" }}>Username</Form.Label>
         <Form.Control
@@ -77,19 +84,27 @@ export const LoginForm = () => {
           }}
         />
       </Form.Group>
-      <Button
-        type="submit"
-        style={{
-          width: "100%",
-          marginTop: "8px",
-        }}
-      >
-        Log In
-      </Button>
-      {error && (
-        <Alert variant="danger" style={{ marginTop: "8px" }}>
-          {error}
-        </Alert>
+      {username && password ? (
+        <Button
+          type="submit"
+          style={{
+            width: "100%",
+            marginTop: "8px",
+          }}
+        >
+          Log In
+        </Button>
+      ) : (
+        <Button
+          type="submit"
+          style={{
+            width: "100%",
+            marginTop: "8px",
+          }}
+          disabled
+        >
+          Log In
+        </Button>
       )}
     </Form>
   );

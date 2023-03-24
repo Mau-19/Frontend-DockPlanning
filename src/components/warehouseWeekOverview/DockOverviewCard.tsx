@@ -4,20 +4,32 @@ import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+
+import { Dock } from "../../types/Dock";
 
 interface Props {
-  reservation: any;
+  reservation?: any;
   index: number;
+  dock: Dock;
+  weekNr?: number;
 }
 
-export const DockOverviewCard: React.FC<Props> = ({ reservation, index }) => {
+export const DockOverviewCard: React.FC<Props> = ({
+  reservation,
+  index,
+  dock,
+  weekNr,
+}) => {
   const [show, setShow] = useState(false);
+  const navigate = useNavigate();
 
   const handleShow = () => setShow(true);
   const handleHide = () => setShow(false);
+  const clickHandler = () => {
+    navigate(`/dock/${dock.id}/${weekNr}`);
+  };
 
-  const percentage =
-    (reservation.currentReservations / reservation.maxReservations) * 100;
   return (
     <>
       <Modal show={show} onHide={handleHide}>
@@ -67,8 +79,8 @@ export const DockOverviewCard: React.FC<Props> = ({ reservation, index }) => {
       <Card
         style={{
           height: "160px",
-          maxWidth: "70%",
-          margin: "2px 0px",
+          maxWidth: "9rem",
+          margin: "2px 4px",
         }}
       >
         <Card.Body
@@ -80,52 +92,17 @@ export const DockOverviewCard: React.FC<Props> = ({ reservation, index }) => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            {percentage <= 25 && (
-              <span
-                style={{
-                  height: "15px",
-                  width: "15px",
-                  backgroundColor: "#0d6efd",
-                  borderRadius: "50%",
-                  display: "inline-block",
-                }}
-              ></span>
-            )}
-            {percentage > 25 && percentage <= 50 && (
-              <span
-                style={{
-                  height: "15px",
-                  width: "15px",
-                  backgroundColor: "green",
-                  borderRadius: "50%",
-                  display: "inline-block",
-                }}
-              ></span>
-            )}
-            {percentage > 50 && percentage <= 75 && (
-              <span
-                style={{
-                  height: "15px",
-                  width: "15px",
-                  backgroundColor: "orange",
-                  borderRadius: "50%",
-                  display: "inline-block",
-                }}
-              ></span>
-            )}
-            {percentage > 75 && (
-              <span
-                style={{
-                  height: "15px",
-                  width: "15px",
-                  backgroundColor: "red",
-                  borderRadius: "50%",
-                  display: "inline-block",
-                }}
-              ></span>
-            )}
+            <span
+              style={{
+                height: "17px",
+                width: "20px",
+                backgroundColor: "red",
+                borderRadius: "50%",
+                display: "inline-block",
+              }}
+            ></span>
             <span style={{ margin: "0px 12px", fontWeight: "bold" }}>
-              Dock {index + 1}
+              {dock.code}
             </span>
             <FontAwesomeIcon
               onClick={handleShow}
@@ -135,8 +112,10 @@ export const DockOverviewCard: React.FC<Props> = ({ reservation, index }) => {
               }}
             />
           </div>
-          <h1>{reservation.currentReservations}</h1>
-          <span>Reservations</span>
+          <div style={{ cursor: "pointer" }} onClick={clickHandler}>
+            <h1>162</h1>
+            <span>Reservations</span>
+          </div>
         </Card.Body>
       </Card>
     </>

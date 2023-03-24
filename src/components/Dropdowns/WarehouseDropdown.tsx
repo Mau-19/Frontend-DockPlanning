@@ -12,22 +12,10 @@ interface Month {
 }
 
 interface Props {
-  type?: string;
-  months?: Month[];
   warehouses?: Warehouse[] | [];
-  year?: number;
-  margin?: boolean;
-  preSelectedItem?: any;
 }
 
-export const DatePickerDropdown: React.FC<Props> = ({
-  type,
-  months,
-  warehouses,
-  year,
-  margin,
-  preSelectedItem,
-}) => {
+export const WarehouseDropdown: React.FC<Props> = ({ warehouses }) => {
   const [selectedItem, setSelectedItem] = useState<any>();
 
   return (

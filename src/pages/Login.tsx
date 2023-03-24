@@ -13,8 +13,16 @@ export const Login = () => {
         padding: "0px 16px",
       }}
     >
-      <h1>Log in</h1>
-      <LoginForm />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <h1>Log in</h1>
+        <LoginForm />
+      </div>
     </div>
   );
 };

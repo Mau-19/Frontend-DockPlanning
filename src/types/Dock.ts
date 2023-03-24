@@ -1,4 +1,5 @@
 export interface Dock {
+  id: number;
   active: boolean;
   code: string;
   params: {

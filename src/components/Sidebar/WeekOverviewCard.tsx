@@ -4,11 +4,10 @@ import Row from "react-bootstrap/Row";
 import { StyledProgressBar } from "./StyledProgressBar";
 
 interface Props {
-  reservation: any;
-  week?: number;
+  item?: number | string;
 }
 
-export const WeekOverviewCard: React.FC<Props> = ({ reservation, week }) => {
+export const WeekOverviewCard: React.FC<Props> = ({ item }) => {
   return (
     <Card
       style={{
@@ -26,14 +25,16 @@ export const WeekOverviewCard: React.FC<Props> = ({ reservation, week }) => {
           alignItems: "center",
         }}
       >
-        <span style={{ fontWeight: "bold" }}>Week {week}</span>
-        <h1>{reservation.currentReservations}</h1>
+        {typeof item == "number" ? (
+          <span style={{ fontWeight: "bold" }}>Week {item}</span>
+        ) : (
+          <span style={{ fontWeight: "bold" }}>{item}</span>
+        )}
+
+        <h1>129</h1>
         <span>Reservations</span>
         <Row style={{ width: "100%" }}>
-          <StyledProgressBar
-            currentReservations={reservation.currentReservations}
-            maxReservations={reservation.maxReservations}
-          />
+          <StyledProgressBar />
         </Row>
       </Card.Body>
     </Card>

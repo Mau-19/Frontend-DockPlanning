@@ -7,7 +7,7 @@ import {
 } from "react";
 
 import { useEffect } from "react";
-import { User } from "../types/user";
+import { User } from "../types/User";
 
 export interface UserContextInterface {
   user: User;

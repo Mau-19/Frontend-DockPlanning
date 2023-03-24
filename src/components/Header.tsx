@@ -36,7 +36,10 @@ export const Header = () => {
       expand="false"
     >
       <Container fluid>
-        <Navbar.Brand>
+        <Navbar.Brand
+          onClick={() => navigate("/")}
+          style={{ cursor: "pointer" }}
+        >
           <img
             src="https://frigobreda.com/wp-content/uploads/2023/01/Logo-Frigo.png"
             height={45}

@@ -4,7 +4,6 @@ import axios from "axios";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import Button from "react-bootstrap/Button";
 import { DateTime } from "luxon";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,151 +11,13 @@ import {
   faCircleChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { WeekOverviewSidebar } from "../components/warehouseWeekOverview/Sidebar/WeekOverviewSidebar";
+import { WeekOverviewSidebar } from "../components/Sidebar/WeekOverviewSidebar";
 import { DockOverview } from "../components/warehouseWeekOverview/DockOverview";
-import { DatePickerDropdown } from "../components/warehouseWeekOverview/DatepickerDropdown";
+import { WarehouseDropdown } from "../components/Dropdowns/WarehouseDropdown";
 import { MonthDropdown } from "../components/Dropdowns/MonthDropdown";
 
 import { Dock } from "../types/Dock";
 import { Warehouse } from "../types/Warehouse";
-
-const reservations = [
-  [
-    {
-      weekNumber: 6,
-      currentReservations: 162,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 7,
-      currentReservations: 160,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 8,
-      currentReservations: 125,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 9,
-      currentReservations: 39,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 10,
-      currentReservations: 166,
-      maxReservations: 200,
-    },
-  ],
-  [
-    {
-      weekNumber: 6,
-      currentReservations: 162,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 7,
-      currentReservations: 160,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 8,
-      currentReservations: 125,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 9,
-      currentReservations: 39,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 10,
-      currentReservations: 166,
-      maxReservations: 200,
-    },
-  ],
-  [
-    {
-      weekNumber: 6,
-      currentReservations: 162,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 7,
-      currentReservations: 160,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 8,
-      currentReservations: 125,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 9,
-      currentReservations: 39,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 10,
-      currentReservations: 166,
-      maxReservations: 200,
-    },
-  ],
-  [
-    {
-      weekNumber: 6,
-      currentReservations: 162,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 7,
-      currentReservations: 160,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 8,
-      currentReservations: 125,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 9,
-      currentReservations: 39,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 10,
-      currentReservations: 166,
-      maxReservations: 200,
-    },
-  ],
-  [
-    {
-      weekNumber: 6,
-      currentReservations: 162,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 7,
-      currentReservations: 160,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 8,
-      currentReservations: 125,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 9,
-      currentReservations: 39,
-      maxReservations: 200,
-    },
-    {
-      weekNumber: 10,
-      currentReservations: 166,
-      maxReservations: 200,
-    },
-  ],
-];
 
 export const WarehouseWeekOverview = () => {
   const apiHostAddress = import.meta.env.VITE_NODE_API_HOST;
@@ -195,6 +56,22 @@ export const WarehouseWeekOverview = () => {
     setWeeks(() => weeks);
   };
 
+  const compare = (a: Dock, b: Dock): number => {
+    if (a.code < b.code) {
+      return -1;
+    }
+    if (a.code > b.code) {
+      return 1;
+    }
+    return 0;
+  };
+
+  const sortDocks = (docksToBeSorted: Dock[]) => {
+    const sortedDocks = docksToBeSorted.sort(compare);
+    setDocks(sortedDocks);
+    console.log(docks);
+  };
+
   useEffect(() => {
     getWeeksInMonth(undefined, month);
   }, [month]);
@@ -209,10 +86,13 @@ export const WarehouseWeekOverview = () => {
       );
       if (response.status == 200) {
         setDocks(() => response.data);
+        console.log(response.data);
       }
     };
 
     fetchDocks();
+    sortDocks(docks);
+    console.log(docks);
     getWeeksInMonth(year, month);
   }, []);
 
@@ -250,7 +130,7 @@ export const WarehouseWeekOverview = () => {
               }}
             />
           </div>
-          <WeekOverviewSidebar reservations={reservations[0]} weeks={weeks} />
+          <WeekOverviewSidebar mapping={weeks} />
           <div style={{ display: "flex", justifyContent: "center" }}>
             <FontAwesomeIcon
               icon={faCircleChevronDown}
@@ -265,20 +145,18 @@ export const WarehouseWeekOverview = () => {
           </div>
         </Col>
         <Col lg={10} style={{ background: "#D9D9D9", paddingTop: "4px" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "end",
-            }}
-          >
-            <DatePickerDropdown
-              type="warehouse"
-              warehouses={warehouses}
-              margin={true}
-            />
-            <MonthDropdown setMonth={setMonth} month={month} />
+          <div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "end",
+              }}
+            >
+              <WarehouseDropdown warehouses={warehouses} />
+              <MonthDropdown setMonth={setMonth} month={month} />
+            </div>
+            <DockOverview docks={docks} weeks={weeks} />
           </div>
-          <DockOverview reservations={reservations} docks={docks} />
         </Col>
       </Row>
     </Container>

@@ -4,8 +4,6 @@ export const daysOfTheWeek = [
   "Wednesday",
   "Tuesday",
   "Friday",
-  "Saturday",
-  "Sunday",
 ];
 
 export const months = [
