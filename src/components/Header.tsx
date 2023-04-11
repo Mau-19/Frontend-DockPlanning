@@ -40,11 +40,7 @@ export const Header = () => {
           onClick={() => navigate("/")}
           style={{ cursor: "pointer" }}
         >
-          <img
-            src="https://frigobreda.com/wp-content/uploads/2023/01/Logo-Frigo.png"
-            height={45}
-            width={50}
-          />
+          <img src="/Logo-Frigo.png" height={45} width={50} />
         </Navbar.Brand>
         {localStorage.getItem("user") != null && (
           <>

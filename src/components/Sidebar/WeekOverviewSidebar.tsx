@@ -1,15 +1,13 @@
-import { useState } from "react";
-
 import Row from "react-bootstrap/Row";
-
-import { WeekOverviewCard } from "./WeekOverviewCard";
 import { motion } from "framer-motion";
 
-interface props {
+import { WeekOverviewCard } from "./WeekOverviewCard";
+
+interface Props {
   mapping?: number[] | string[];
 }
 
-export const WeekOverviewSidebar: React.FC<props> = ({ mapping }) => {
+export const WeekOverviewSidebar: React.FC<Props> = ({ mapping }) => {
   return (
     <div
       style={{
@@ -38,19 +36,4 @@ export const WeekOverviewSidebar: React.FC<props> = ({ mapping }) => {
       ))}
     </div>
   );
-};
-
-export const variants = {
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      ease: "easeOut",
-      duration: 0.3,
-    },
-  },
-  hide: {
-    y: -20,
-    opacity: 0,
-  },
 };

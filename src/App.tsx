@@ -3,11 +3,11 @@ import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { PrivateRoutes } from "./utils/PrivateRoutes";
 import { Header } from "./components/Header";
-import { WarehouseWeekOverview } from "./pages/WarehouseWeekOverview";
-import { DockWeekOverview } from "./pages/DockWeekOverview/DockWeekOverview";
-import { Login } from "./pages/Login";
+import { WarehouseMonthOverview } from "./pages/WarehouseMonthOverview/WarehouseMonthOverview";
+import { Login } from "./pages/Login/Login";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import { WareHouseWeekOverviewContainer } from "./pages/WarehouseWeekOverview/WarehouseWeekOverviewContainer";
 
 function App() {
   return (
@@ -15,8 +15,11 @@ function App() {
       <Header />
       <Routes>
         <Route element={<PrivateRoutes />}>
-          <Route path="/" element={<WarehouseWeekOverview />} />
-          <Route path="/dock/:dockId/:weekNr" element={<DockWeekOverview />} />
+          <Route path="/" element={<WarehouseMonthOverview />} />
+          <Route
+            path="/dock/:dockId/:weekNr"
+            element={<WareHouseWeekOverviewContainer />}
+          />
         </Route>
         <Route path="/login" element={<Login />} />
       </Routes>

@@ -1,6 +1,4 @@
-import Container from "react-bootstrap/Container";
-
-import { LoginForm } from "../components/Forms/LoginForm";
+import { LoginForm } from "../../components/Forms/LoginForm";
 
 export const Login = () => {
   return (

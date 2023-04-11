@@ -4,6 +4,7 @@ import axios from "axios";
 import Container from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import Spinner from "react-bootstrap/Spinner";
 import { DateTime } from "luxon";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,25 +12,33 @@ import {
   faCircleChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { WeekOverviewSidebar } from "../components/Sidebar/WeekOverviewSidebar";
-import { DockOverview } from "../components/warehouseWeekOverview/DockOverview";
-import { WarehouseDropdown } from "../components/Dropdowns/WarehouseDropdown";
-import { MonthDropdown } from "../components/Dropdowns/MonthDropdown";
+import { WeekOverviewSidebar } from "../../components/Sidebar/WeekOverviewSidebar";
+import { DockOverview } from "./DockOverview";
+import { WarehouseDropdown } from "../../components/Dropdowns/WarehouseDropdown";
+import { MonthDropdown } from "../../components/Dropdowns/MonthDropdown";
+import { YearDropdown } from "../../components/Dropdowns/YearDropdown";
 
-import { Dock } from "../types/Dock";
-import { Warehouse } from "../types/Warehouse";
+import { Dock } from "../../types/Dock";
+import { Warehouse } from "../../types/Warehouse";
+import { Timeslot } from "../../types/Timeslot";
 
-export const WarehouseWeekOverview = () => {
+export const WarehouseMonthOverview = () => {
   const apiHostAddress = import.meta.env.VITE_NODE_API_HOST;
 
   const currentYear: number = DateTime.now().year;
   const currentMonth: number = DateTime.now().month;
 
   const [docks, setDocks] = useState<Dock[]>([]);
+  const [filteredDocks, setFilteredDocks] = useState<Dock[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse>(
+    warehouses[0]
+  );
   const [weeks, setWeeks] = useState<number[]>([]);
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
+  const [timeslots, setTimeslots] = useState<Timeslot[]>();
+  const [loading, setLoading] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user") || "");
 
@@ -56,55 +65,50 @@ export const WarehouseWeekOverview = () => {
     setWeeks(() => weeks);
   };
 
-  const compare = (a: Dock, b: Dock): number => {
-    if (a.code < b.code) {
-      return -1;
-    }
-    if (a.code > b.code) {
-      return 1;
-    }
-    return 0;
-  };
-
-  const sortDocks = (docksToBeSorted: Dock[]) => {
-    const sortedDocks = docksToBeSorted.sort(compare);
-    setDocks(sortedDocks);
-    console.log(docks);
-  };
-
   useEffect(() => {
     getWeeksInMonth(undefined, month);
   }, [month]);
 
   useEffect(() => {
-    const fetchDocks = async () => {
-      const response = await axios.get(
-        `${apiHostAddress}/warehouse/list_docks`,
-        {
-          headers: user.accessToken,
-        }
+    const fetchData = async () => {
+      setLoading(true);
+      const dockData = await axios.get(
+        `${apiHostAddress}/warehouse/list_docks`
       );
-      if (response.status == 200) {
-        setDocks(() => response.data);
-        console.log(response.data);
+      const warehouseData = await axios.get(`${apiHostAddress}/warehouse/list`);
+      const timeslotData = await axios.get(`${apiHostAddress}/timeslot/list`, {
+        headers: {
+          "x-access-token": user?.accessToken,
+        },
+      });
+      if (
+        dockData.status == 200 &&
+        warehouseData.status == 200 &&
+        timeslotData.status == 200
+      ) {
+        setDocks(dockData.data);
+        setWarehouses(warehouseData.data);
+        setTimeslots(timeslotData.data);
+        setSelectedWarehouse(warehouseData.data[0]);
+        setLoading(false);
       }
     };
 
-    fetchDocks();
-    sortDocks(docks);
-    console.log(docks);
+    fetchData();
     getWeeksInMonth(year, month);
   }, []);
 
   useEffect(() => {
-    const fetchWarehouses = async () => {
-      const response = await axios.get(`${apiHostAddress}/warehouse/list`);
-      if (response.status == 200) {
-        setWarehouses(() => response.data);
-      }
-    };
-    fetchWarehouses();
-  }, []);
+    setFilteredDocks(docks);
+    filterDocksOnSelectedWarehouse();
+  }, [selectedWarehouse]);
+
+  const filterDocksOnSelectedWarehouse = () => {
+    const filterDocks = docks.filter(
+      (dock) => dock.params.warehouseId == selectedWarehouse?.id
+    );
+    setFilteredDocks(filterDocks);
+  };
 
   const incrementMonth = () => {
     setMonth(() => month + 1);
@@ -152,10 +156,22 @@ export const WarehouseWeekOverview = () => {
                 justifyContent: "end",
               }}
             >
-              <WarehouseDropdown warehouses={warehouses} />
+              <WarehouseDropdown
+                warehouses={warehouses}
+                setSelectedWarehouse={setSelectedWarehouse}
+                selectedWarehouse={selectedWarehouse}
+              />
               <MonthDropdown setMonth={setMonth} month={month} />
+              <YearDropdown years={[2020, 2021, 2023]} />
             </div>
-            <DockOverview docks={docks} weeks={weeks} />
+            {loading && (
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            )}
+            <DockOverview docks={filteredDocks} weeks={weeks} />
           </div>
         </Col>
       </Row>

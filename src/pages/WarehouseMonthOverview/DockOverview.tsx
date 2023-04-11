@@ -1,6 +1,5 @@
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 
 import { DockOverviewCard } from "./DockOverviewCard";
 import { Dock } from "../../types/Dock";
@@ -17,7 +16,7 @@ export const DockOverview: React.FC<Props> = ({ docks, weeks }) => {
       style={{
         display: "flex",
         flexDirection: "column",
-        overflowX: "scroll",
+        overflowX: "auto",
         overflowY: "hidden",
       }}
     >

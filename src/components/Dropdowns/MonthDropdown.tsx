@@ -26,7 +26,7 @@ export const MonthDropdown: React.FC<Props> = ({
 
   const handleSetMonth = (e: number) => {
     const valueNumber: number = +e;
-    setMonth(() => valueNumber);
+    setMonth(valueNumber);
     setDropdownMonth(
       () => months.find((m) => m.monthValue === valueNumber)?.monthName
     );

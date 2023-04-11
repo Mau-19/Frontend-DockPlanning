@@ -1,13 +1,36 @@
+import { useEffect, useState } from "react";
+
+import { DateTime } from "luxon";
 import Card from "react-bootstrap/Card";
 import Row from "react-bootstrap/Row";
+import ProgressBar from "react-bootstrap/ProgressBar";
 
 import { StyledProgressBar } from "./StyledProgressBar";
+import { Timeslot } from "../../types/Timeslot";
 
 interface Props {
   item?: number | string;
+  totalCapacity: number;
+  capacity?: Timeslot[];
 }
 
-export const WeekOverviewCard: React.FC<Props> = ({ item }) => {
+export const WeekOverviewCard: React.FC<Props> = ({
+  item,
+  totalCapacity,
+  capacity,
+}) => {
+  const [totalTimeSlots, setTotalTimeslots] = useState<number>(0);
+  let totalThing = 0;
+
+  useEffect(() => {
+    capacity?.forEach((cap, index) => {
+      const e = DateTime.fromISO(cap.start_time);
+      const e2 = DateTime.fromISO(cap.end_time);
+      const difference = e2.diff(e).as("minute") / 15;
+      totalThing += difference;
+    });
+    setTotalTimeslots(totalThing);
+  }, [totalCapacity, capacity]);
   return (
     <Card
       style={{
@@ -31,10 +54,16 @@ export const WeekOverviewCard: React.FC<Props> = ({ item }) => {
           <span style={{ fontWeight: "bold" }}>{item}</span>
         )}
 
-        <h1>129</h1>
+        <h1>{capacity?.length}</h1>
         <span>Reservations</span>
         <Row style={{ width: "100%" }}>
-          <StyledProgressBar />
+          <ProgressBar
+            max={totalCapacity}
+            now={totalTimeSlots}
+            style={{
+              paddingLeft: "0px",
+            }}
+          />
         </Row>
       </Card.Body>
     </Card>

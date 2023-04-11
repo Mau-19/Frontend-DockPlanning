@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { Dispatch, SetStateAction } from "react";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -9,31 +9,31 @@ import { Dock } from "../../types/Dock";
 
 interface Props {
   docks: Dock[];
+  selectedDock: Dock | undefined;
+  setSelectedDock: Dispatch<SetStateAction<Dock | undefined>>;
+  dockId: number;
+  weekNr: string;
 }
 
-export const DockDropdown: React.FC<Props> = ({ docks }) => {
-  const [dropdownDock, setDropdownDock] = useState("");
-  const { dockId, weekNr } = useParams();
+export const DockDropdown: React.FC<Props> = ({
+  docks,
+  selectedDock,
+  setSelectedDock,
+  weekNr,
+}) => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log(dockId);
-    const dockCode = getDockCodeFromId(dockId);
-    setDropdownDock(dockCode);
-  }, [docks]);
-
   const handleSetDock = (e: string) => {
-    const foundDockId = getDockIdFromCode(e);
-    navigate(`/dock/${foundDockId}/${weekNr}`);
-    setDropdownDock(e);
+    const idToNumber: number = +e;
+    const foundDock = getDockFromId(idToNumber);
+    if (foundDock) {
+      navigate(`/dock/${foundDock.id}/${weekNr}`);
+      setSelectedDock(foundDock);
+    }
   };
 
-  const getDockIdFromCode = (dockCode: string): number => {
-    return docks?.find((d) => d?.code === dockCode)?.id;
-  };
-
-  const getDockCodeFromId = (id: number): string => {
-    return docks?.find((d) => d?.id === id)?.code;
+  const getDockFromId = (id: number): Dock | undefined => {
+    return docks?.find((dock) => dock?.id === id);
   };
 
   return (
@@ -42,11 +42,11 @@ export const DockDropdown: React.FC<Props> = ({ docks }) => {
       style={{ width: "130px" }}
       onSelect={handleSetDock}
     >
-      <Button variant="dark">{dropdownDock}</Button>
+      <Button variant="dark">{selectedDock?.code}</Button>
       <Dropdown.Toggle split style={{ maxWidth: "25px" }} variant="dark" />
       <Dropdown.Menu>
         {docks?.map((dock, index) => (
-          <Dropdown.Item key={index} eventKey={dock.code}>
+          <Dropdown.Item key={index} eventKey={dock.id}>
             {dock.code}
           </Dropdown.Item>
         ))}
