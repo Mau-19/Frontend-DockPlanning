@@ -29,9 +29,11 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
     Friday: [],
   };
   const apiHostAddress = import.meta.env.VITE_NODE_API_HOST;
-  const [timeslots, setTimeslots] = useState<Timeslot[]>();
-  const [timeslotsByDay, setTimeslotsByDay] = useState<TimeslotByDay>();
+  const [timeslots, setTimeslots] = useState<Timeslot[]>([]);
+  const [timeslotsByDay, setTimeslotsByDay] = useState<TimeslotByDay>({});
+  const [capacityPercentage, setCapacityPercentage] = useState(0);
   const [show, setShow] = useState(false);
+  let timeslotTotal = 0;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,14 +50,44 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
       }
     };
     fetchTimeslots();
-  }, [weekNr]);
+  }, [weekNr, dock]);
+
+  useEffect(() => {
+    const dockMax = calculateDockMaxCapacity(dock);
+    const timeslotMax = calculateTimeslotCapacity(timeslots);
+    setCapacityPercentage(calculateCapacityPercentage(dockMax, timeslotMax));
+  }, [dock, timeslots]);
+
+  const calculateCapacityPercentage = (
+    dockCapacity: number,
+    totalTimeslots: number
+  ) => {
+    return (totalTimeslots / dockCapacity) * 100;
+  };
+
+  const calculateDockMaxCapacity = (dock: Dock) => {
+    const startTime = DateTime.fromISO(dock?.params.opening_time);
+    const endTime = DateTime.fromISO(dock?.params.closing_time);
+    const difference = endTime.diff(startTime).as("minutes") / 15;
+    return difference;
+  };
+
+  const calculateTimeslotCapacity = (timeslots: Timeslot[]) => {
+    timeslots.forEach((timeslot) => {
+      const startTime = DateTime.fromISO(timeslot.start_time);
+      const endTime = DateTime.fromISO(timeslot.end_time);
+      const difference = endTime.diff(startTime).as("minute") / 15;
+      timeslotTotal += difference;
+    });
+    return timeslotTotal;
+  };
 
   const checkIfTimeslotsInCurrentWeek = (timeslots: Timeslot[]) => {
     const filteredTimeslots: Timeslot[] = [];
     timeslots.forEach((timeslot) => {
       const startTime = DateTime.fromISO(timeslot.start_time);
       const startWeekNr = startTime.weekNumber;
-      if (startWeekNr == weekNr) {
+      if (startWeekNr == weekNr && timeslot?.params.locationId === dock.id) {
         filteredTimeslots.push(timeslot);
       }
     });
@@ -71,9 +103,12 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
         sample[dayOfWeek].push(timeslot);
       }
     });
-    console.log(sample);
     setTimeslotsByDay(sample);
   };
+
+  useEffect(() => {
+    groupTimeslotsByWeekDay(timeslots);
+  }, [timeslots]);
 
   const handleShow = () => setShow(true);
   const handleHide = () => setShow(false);
@@ -120,7 +155,7 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
               }}
             >
               <h5>Reservations</h5>
-              <span>162</span>
+              <span>{timeslots?.length}</span>
             </div>
           </div>
         </Modal.Header>
@@ -133,9 +168,9 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
           </thead>
           <tbody>
             {Object.keys(sample)?.map((day, index) => (
-              <tr>
+              <tr key={index}>
                 <td>{day}</td>
-                <td>e</td>
+                <td>{timeslotsByDay[day]?.length}</td>
               </tr>
             ))}
           </tbody>
@@ -163,15 +198,38 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
               width: "max-content",
             }}
           >
-            <span
-              style={{
-                height: "20px",
-                width: "20px",
-                backgroundColor: "red",
-                borderRadius: "50%",
-                display: "inline-block",
-              }}
-            ></span>
+            {capacityPercentage < 50 ? (
+              <span
+                style={{
+                  height: "20px",
+                  width: "20px",
+                  backgroundColor: "green",
+                  borderRadius: "50%",
+                  display: "inline-block",
+                }}
+              ></span>
+            ) : capacityPercentage >= 50 && capacityPercentage < 75 ? (
+              <span
+                style={{
+                  height: "20px",
+                  width: "20px",
+                  backgroundColor: "orange",
+                  borderRadius: "50%",
+                  display: "inline-block",
+                }}
+              ></span>
+            ) : (
+              <span
+                style={{
+                  height: "20px",
+                  width: "20px",
+                  backgroundColor: "red",
+                  borderRadius: "50%",
+                  display: "inline-block",
+                }}
+              ></span>
+            )}
+
             <span style={{ margin: "0px 12px", fontWeight: "bold" }}>
               {dock.code}
             </span>
@@ -193,7 +251,11 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
             onClick={clickHandler}
           >
             <h1>{timeslots?.length}</h1>
-            <span>Reservations</span>
+            {timeslots?.length === 1 ? (
+              <span>Reservation</span>
+            ) : (
+              <span>Reservations</span>
+            )}
           </div>
         </Card.Body>
       </Card>

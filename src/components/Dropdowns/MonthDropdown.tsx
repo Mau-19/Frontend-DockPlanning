@@ -36,7 +36,7 @@ export const MonthDropdown: React.FC<Props> = ({
     <Dropdown
       as={ButtonGroup}
       onSelect={handleSetMonth}
-      style={{ width: "130px" }}
+      style={{ width: "130px", marginRight: "10px" }}
     >
       <Button variant="dark">{dropdownMonth}</Button>
       <Dropdown.Toggle split style={{ maxWidth: "25px" }} variant="dark" />

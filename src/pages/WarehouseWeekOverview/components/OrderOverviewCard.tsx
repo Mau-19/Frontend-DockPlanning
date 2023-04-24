@@ -86,7 +86,7 @@ export const OrderOverviewCard: React.FC<Props> = ({ timeslot }) => {
           </thead>
           <tbody>
             {cargo?.goods.map((good) => (
-              <tr>
+              <tr key={good.id}>
                 <td>{good.code}</td>
                 <td>{good.params.clientId}</td>
                 <td>{good.description}</td>
@@ -109,6 +109,7 @@ export const OrderOverviewCard: React.FC<Props> = ({ timeslot }) => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-between",
+            width: "144px",
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>

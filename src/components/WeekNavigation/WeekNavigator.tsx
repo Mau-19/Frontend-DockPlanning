@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
-import Aler from "react-bootstrap/Alert";
 import { Alert } from "react-bootstrap";
 
 interface Props {

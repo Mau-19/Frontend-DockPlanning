@@ -10,7 +10,6 @@ import {
 
 import { OrderOverview } from "./components/OrderOverview";
 import { WeekDaySidebar } from "./components/WeekDaySidebar";
-import { WeekOverviewSidebar } from "../../components/Sidebar/WeekOverviewSidebar";
 import { DockDropdown } from "../../components/Dropdowns/DockDropdown";
 import { WarehouseDropdown } from "../../components/Dropdowns/WarehouseDropdown";
 import { WeekNavigator } from "../../components/WeekNavigation/WeekNavigator";
@@ -40,7 +39,6 @@ interface Props {
 export const WarehouseWeekOverview: React.FC<Props> = ({
   decrementWeek,
   incrementWeek,
-  daysOfTheWeek,
   weekNr,
   dockId,
   warehouses,
@@ -94,7 +92,12 @@ export const WarehouseWeekOverview: React.FC<Props> = ({
             }}
           >
             <WeekNavigator weekNr={weekNr} dockId={dockId} />
-            <h3>30 Reservations</h3>
+            {filteredTimeslots?.length == 1 ? (
+              <h3>1 reservation</h3>
+            ) : (
+              <h3>{filteredTimeslots?.length} Reservations</h3>
+            )}
+
             <div>
               <WarehouseDropdown
                 warehouses={warehouses}

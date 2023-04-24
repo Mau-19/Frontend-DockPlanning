@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { DateTime } from "luxon";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -9,7 +10,7 @@ interface Props {
 }
 
 export const YearDropdown: React.FC<Props> = ({ years }) => {
-  const [selectedYear, setSelectedYear] = useState<number>(years[0]);
+  const [selectedYear, setSelectedYear] = useState(DateTime.now().year);
 
   const handleSelectYear = (e) => {
     const valueNumber = +e;

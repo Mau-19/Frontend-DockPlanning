@@ -13,3 +13,9 @@ export interface Timeslot {
 export interface TimeslotByDay {
   [day: string]: Timeslot[];
 }
+export interface TimeslotByWeekNr {
+  [key: number]: Timeslot[];
+}
+export interface TimeslotByDockId {
+  [key: number]: Timeslot[];
+}

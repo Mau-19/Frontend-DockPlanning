@@ -33,7 +33,7 @@ export const WareHouseWeekOverviewContainer = () => {
     description: "",
   });
   const [selectedDock, setSelectedDock] = useState<Dock>();
-  const [dockTimeslotCapacity, setDockTimeslotCapacity] = useState<number>();
+  const [dockTimeslotCapacity, setDockTimeslotCapacity] = useState<number>(0);
   const [timeslots, setTimeslots] = useState<Timeslot[]>();
   const [filteredTimeslots, setFilteredTimeslots] = useState<Timeslot[]>();
   const [timeslotsByDay, setTimeslotsByDay] = useState<TimeslotByDay>(sample);
@@ -84,10 +84,10 @@ export const WareHouseWeekOverviewContainer = () => {
     return dockList.find((dock) => dock.id === dockIdFromParams);
   };
 
-  const updateTimeslotsByDay = (test: TimeslotByDay) => {
+  const updateTimeslotsByDay = (timeslotsByDay: TimeslotByDay) => {
     const updatedTimeslotsByDay: TimeslotByDay = {};
-    Object.keys(test).forEach((day) => {
-      const filteredTimeslotsOnDay = filterTimeSlotsOnWeek(test[day]);
+    Object.keys(timeslotsByDay).forEach((day) => {
+      const filteredTimeslotsOnDay = filterTimeSlotsOnWeek(timeslotsByDay[day]);
       updatedTimeslotsByDay[day] = filteredTimeslotsOnDay;
     });
     return updatedTimeslotsByDay;

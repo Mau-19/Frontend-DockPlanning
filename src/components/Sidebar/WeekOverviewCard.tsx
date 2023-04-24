@@ -10,26 +10,28 @@ import { Timeslot } from "../../types/Timeslot";
 
 interface Props {
   item?: number | string;
-  totalCapacity: number;
+  totalCapacity?: number;
   capacity?: Timeslot[];
+  week?: boolean;
 }
 
 export const WeekOverviewCard: React.FC<Props> = ({
   item,
   totalCapacity,
   capacity,
+  week,
 }) => {
   const [totalTimeSlots, setTotalTimeslots] = useState<number>(0);
-  let totalThing = 0;
+  let timeslotTotal = 0;
 
   useEffect(() => {
     capacity?.forEach((cap, index) => {
-      const e = DateTime.fromISO(cap.start_time);
-      const e2 = DateTime.fromISO(cap.end_time);
-      const difference = e2.diff(e).as("minute") / 15;
-      totalThing += difference;
+      const startTime = DateTime.fromISO(cap.start_time);
+      const endTime = DateTime.fromISO(cap.end_time);
+      const difference = endTime.diff(startTime).as("minute") / 15;
+      timeslotTotal += difference;
     });
-    setTotalTimeslots(totalThing);
+    setTotalTimeslots(timeslotTotal);
   }, [totalCapacity, capacity]);
   return (
     <Card
@@ -48,14 +50,19 @@ export const WeekOverviewCard: React.FC<Props> = ({
           alignItems: "center",
         }}
       >
-        {typeof item == "number" ? (
+        {week ? (
           <span style={{ fontWeight: "bold" }}>Week {item}</span>
         ) : (
           <span style={{ fontWeight: "bold" }}>{item}</span>
         )}
 
-        <h1>{capacity?.length}</h1>
-        <span>Reservations</span>
+        {capacity ? <h1>{capacity?.length}</h1> : <h1>0</h1>}
+
+        {capacity?.length === 1 ? (
+          <span>Reservation</span>
+        ) : (
+          <span>Reservations</span>
+        )}
         <Row style={{ width: "100%" }}>
           <ProgressBar
             max={totalCapacity}

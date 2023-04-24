@@ -5,7 +5,11 @@ import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRightFromBracket,
+  faCalendar,
+  faPenToSquare,
+} from "@fortawesome/free-solid-svg-icons";
 
 import AuthContext from "../context/AuthContext";
 
@@ -67,8 +71,30 @@ export const Header = () => {
                 style={{ display: "flex", justifyContent: "center" }}
               >
                 <ul>
-                  <li>item 1</li>
-                  <li>item 2</li>
+                  <li
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      navigate("/dock-overview");
+                      handleClose();
+                    }}
+                  >
+                    <span style={{ paddingRight: "4px" }}>
+                      Reservations - Dock
+                    </span>
+                    <FontAwesomeIcon icon={faCalendar} />
+                  </li>
+                  <li style={{ cursor: "pointer" }}>
+                    <span
+                      style={{ paddingRight: "4px" }}
+                      onClick={() => {
+                        navigate("/plan");
+                        handleClose();
+                      }}
+                    >
+                      Planner
+                    </span>
+                    <FontAwesomeIcon icon={faPenToSquare} />
+                  </li>
                   <li>item 3</li>
                   <li style={{ cursor: "pointer" }} onClick={logout}>
                     <span style={{ paddingRight: "4px" }}>Logout</span>

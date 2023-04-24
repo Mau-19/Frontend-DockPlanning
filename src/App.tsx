@@ -4,6 +4,8 @@ import { AuthProvider } from "./context/AuthContext";
 import { PrivateRoutes } from "./utils/PrivateRoutes";
 import { Header } from "./components/Header";
 import { WarehouseMonthOverview } from "./pages/WarehouseMonthOverview/WarehouseMonthOverview";
+import { WarehouseDockOverviewPage } from "./pages/WarehouseDockOverview/WarehouseDockOverviewPage";
+import { DockPlanner } from "./pages/DockPlanner/DockPlanner";
 import { Login } from "./pages/Login/Login";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -17,9 +19,14 @@ function App() {
         <Route element={<PrivateRoutes />}>
           <Route path="/" element={<WarehouseMonthOverview />} />
           <Route
+            path="/dock-overview"
+            element={<WarehouseDockOverviewPage />}
+          ></Route>
+          <Route
             path="/dock/:dockId/:weekNr"
             element={<WareHouseWeekOverviewContainer />}
           />
+          <Route path="/plan" element={<DockPlanner />}></Route>
         </Route>
         <Route path="/login" element={<Login />} />
       </Routes>
