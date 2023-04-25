@@ -20,9 +20,9 @@ export const DockOverview: React.FC<Props> = ({ docks, weeks }) => {
         overflowY: "hidden",
       }}
     >
-      {weeks.map((week, index) => (
+      {weeks?.map((week, index) => (
         <Row key={index} style={{ flexWrap: "noWrap" }}>
-          {docks.map((dock, index) => (
+          {docks?.map((dock, index) => (
             <DockOverviewCard
               dock={dock}
               key={index}

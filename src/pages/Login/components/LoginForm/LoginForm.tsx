@@ -1,49 +1,50 @@
 import { useState, useContext } from "react";
 
-import axios from "axios";
+import { useMutation, QueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
-import AuthContext from "../../context/AuthContext";
+import { login } from "../../../../api/apiAuth";
+
+import AuthContext from "../../../../context/AuthContext";
 
 export const LoginForm = () => {
-  const apiHostAddress = import.meta.env.VITE_NODE_API_HOST;
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const { user, setUser } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
+  const signInMutation = useMutation(
+    (credentials) => login(credentials.username, credentials.password),
+    {
+      onSuccess: (data) => {
+        localStorage.setItem("user", JSON.stringify(data));
+        setUser({
+          id: data.id,
+          accessToken: data.accessToken,
+          username: data.username,
+          email: data.email,
+        });
+        navigate("/");
+      },
+      onError: (error) => {
+        if (error?.response?.status == 404) {
+          setError("User not found");
+        } else if (error?.response?.status == 401) {
+          setError("Incorrect username or password");
+        }
+      },
+    }
+  );
+
   const submitFormHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await axios
-      .post(`${apiHostAddress}/auth/signin`, {
-        username: username,
-        password: password,
-      })
-      .catch((error) => {
-        if (error.response.status == 404) {
-          setError("User not found");
-        } else if (error.response.status == 401) {
-          setError("Combination of username and/or password is not correct");
-        }
-      });
-
-    if (response?.status == 200) {
-      localStorage.setItem("user", JSON.stringify(response.data));
-      setUser({
-        id: response.data.id,
-        accessToken: response.data.accessToken,
-        username: response.data.username,
-        email: response.data.email,
-      });
-      navigate("/");
-    }
+    signInMutation.mutate({ username, password });
   };
 
   return (

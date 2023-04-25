@@ -170,7 +170,7 @@ export const WarehouseDockOverviewPage = () => {
     timeslots: Timeslot[],
     timeslotsByDockId: TimeslotByDockId
   ) => {
-    const newTimeslotsByDockId: TimeslotByDockId = {};
+    const newTimeslotsByDockId: TimeslotByDockId = timeslotsByDockId;
     timeslots?.forEach((timeslot) => {
       const dockIdFromTimeslot = timeslot.params.locationId;
       if (dockIdFromTimeslot in timeslotsByDockId) {
@@ -182,16 +182,6 @@ export const WarehouseDockOverviewPage = () => {
     });
     setTimeslotsByDockId(newTimeslotsByDockId);
   };
-
-  // const updateTimeslotsByDockId = (timeslotsByDockId: TimeslotByDockId) => {
-  //   const updatedTimeslotsByDockId: TimeslotByDockId = {};
-  //   Object.keys(timeslotsByDockId).forEach((dockId) => {
-  //     console.log("id: ", dockId);
-  //     const filteredTimeslotsOnDay = filterTimeSlotsOnWeek(timeslotsByDock[day]);
-  //     updatedTimeslotsByDay[dock] = filteredTimeslotsOnDay;
-  //   });
-  //   return updatedTimeslotsByDockId;
-  // };
 
   return (
     <Container fluid>
@@ -227,32 +217,27 @@ export const WarehouseDockOverviewPage = () => {
           </div>
         </Col>
         <Col lg={10} style={{ background: "#D9D9D9", paddingTop: "4px" }}>
-          <div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "end",
-              }}
-            >
-              <WarehouseDropdown
-                warehouses={warehouses}
-                setSelectedWarehouse={setSelectedWarehouse}
-                selectedWarehouse={selectedWarehouse}
-              />
-              <WeekPicker
-                weekNumber={weekNumber}
-                setWeekNumber={setWeekNumber}
-              />
-            </div>
-            {loading && (
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-              </div>
-            )}
-            <WarehouseDockOverview />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+            }}
+          >
+            <WarehouseDropdown
+              warehouses={warehouses}
+              setSelectedWarehouse={setSelectedWarehouse}
+              selectedWarehouse={selectedWarehouse}
+            />
+            <WeekPicker weekNumber={weekNumber} setWeekNumber={setWeekNumber} />
           </div>
+          {loading && (
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </div>
+          )}
+          <WarehouseDockOverview timeslotsByDockId={timeslotsByDockId} />
         </Col>
       </Row>
     </Container>

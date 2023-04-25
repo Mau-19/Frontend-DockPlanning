@@ -23,7 +23,7 @@ export const DockSidebar: React.FC<Props> = ({ docks, timeslotsByDockId }) => {
     >
       {docks?.map((dock, index) => (
         <motion.div
-          key={dock}
+          key={dock.id}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}

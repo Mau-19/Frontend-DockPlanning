@@ -1,18 +1,20 @@
-import axios from "axios";
-
-const apiHostAddress = import.meta.env.VITE_NODE_API_HOST;
-
-const user = JSON.parse(localStorage.getItem("user") || "");
-
-const api = axios.create({
-  baseURL: apiHostAddress,
-});
+import { Dock } from "../types/Dock";
+import { ClientFetchHttpMethod, clientFetch } from "./apiUtil";
 
 export const getTimeslots = async () => {
-  const response = await api.get(`${apiHostAddress}/timeslot/list`, {
-    headers: {
-      "x-access-token": user?.accessToken,
-    },
+  return await clientFetch(ClientFetchHttpMethod.GET, `/timeslot/list`, {
+    authenticatedRoute: true,
   });
-  return response.data;
+};
+
+export const getTimeslotsByDockId = async (dock: Dock) => {
+  return await clientFetch(
+    ClientFetchHttpMethod.POST,
+    `/timeslot/list_by_dock`,
+    {
+      body: {
+        dockId: dock?.id,
+      },
+    }
+  );
 };

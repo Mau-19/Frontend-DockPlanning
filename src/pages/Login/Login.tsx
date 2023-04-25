@@ -1,4 +1,4 @@
-import { LoginForm } from "../../components/Forms/LoginForm";
+import { LoginForm } from "./components/LoginForm/LoginForm";
 
 export const Login = () => {
   return (

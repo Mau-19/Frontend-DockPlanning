@@ -137,9 +137,14 @@ export const OrderOverviewCard: React.FC<Props> = ({ timeslot }) => {
                   icon={faShuttleVan}
                   style={{ height: "50px", width: "50px" }}
                 />
-              ) : (
+              ) : cargo?.cargoTypeId > 3 && cargo?.cargoTypeId <= 6 ? (
                 <FontAwesomeIcon
                   icon={faXmarksLines}
+                  style={{ height: "50px", width: "50px" }}
+                />
+              ) : (
+                <FontAwesomeIcon
+                  icon={faShuttleVan}
                   style={{ height: "50px", width: "50px" }}
                 />
               )}
