@@ -19,11 +19,11 @@ const api = axios.create({
 export const clientFetch = async (
   method: string,
   url: string,
-  options: ClientFetchOptions
+  options?: ClientFetchOptions
 ) => {
   let headers = {};
 
-  if (options.authenticatedRoute) {
+  if (options?.authenticatedRoute) {
     const userJson = localStorage.getItem("user");
     const user = userJson ? JSON.parse(userJson) : "";
 
@@ -45,7 +45,7 @@ export const clientFetch = async (
     case ClientFetchHttpMethod.POST: {
       try {
         const response = await api.post(`${apiHostAddress}${url}`, {
-          ...options.body,
+          ...options?.body,
         });
         return response.data;
       } catch (error) {

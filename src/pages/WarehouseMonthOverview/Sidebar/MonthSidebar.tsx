@@ -1,15 +1,29 @@
+import { useQuery } from "@tanstack/react-query";
 import Row from "react-bootstrap/Row";
 import { motion } from "framer-motion";
 
-import { TimeslotByWeekNr } from "../../../types/Timeslot";
+import { getTimeslotsByWeekNumbers } from "../../../api/apiTimeslots";
 
 import { WeekOverviewCard } from "../../../components/Sidebar/WeekOverviewCard";
 
 interface Props {
-  timeslotsByWeekNr: TimeslotByWeekNr;
+  year: number;
+  warehouseId: number;
+  weekNumbers: number[];
 }
 
-export const MonthSidebar: React.FC<Props> = ({ timeslotsByWeekNr }) => {
+export const MonthSidebar: React.FC<Props> = ({
+  year,
+  warehouseId,
+  weekNumbers,
+}) => {
+  const { data: timeslotsByWeekNr = [], isLoading: isTimeslotsLoading } =
+    useQuery(["timeslotsByWeekNr", weekNumbers], () =>
+      getTimeslotsByWeekNumbers(warehouseId, year, weekNumbers)
+    );
+  if (isTimeslotsLoading) {
+    return <h1>Loading...</h1>;
+  }
   return (
     <div
       style={{

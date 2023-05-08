@@ -9,9 +9,12 @@ import {
   faArrowRightFromBracket,
   faCalendar,
   faPenToSquare,
+  faCirclePlus,
 } from "@fortawesome/free-solid-svg-icons";
 
-import AuthContext from "../context/AuthContext";
+import AuthContext from "../../context/AuthContext";
+
+import * as S from "./Header.styles";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
@@ -19,11 +22,11 @@ export const Header = () => {
   const navigate = useNavigate();
 
   const toggleOpen = () => {
-    setOpen(() => !open);
+    setOpen(!open);
   };
 
   const handleClose = () => {
-    setOpen(() => false);
+    setOpen(false);
   };
 
   const logout = () => {
@@ -71,8 +74,7 @@ export const Header = () => {
                 style={{ display: "flex", justifyContent: "center" }}
               >
                 <ul>
-                  <li
-                    style={{ cursor: "pointer" }}
+                  <S.ListItem
                     onClick={() => {
                       navigate("/dock-overview");
                       handleClose();
@@ -82,8 +84,8 @@ export const Header = () => {
                       Reservations - Dock
                     </span>
                     <FontAwesomeIcon icon={faCalendar} />
-                  </li>
-                  <li style={{ cursor: "pointer" }}>
+                  </S.ListItem>
+                  <S.ListItem>
                     <span
                       style={{ paddingRight: "4px" }}
                       onClick={() => {
@@ -94,12 +96,19 @@ export const Header = () => {
                       Planner
                     </span>
                     <FontAwesomeIcon icon={faPenToSquare} />
-                  </li>
-                  <li>item 3</li>
-                  <li style={{ cursor: "pointer" }} onClick={logout}>
+                  </S.ListItem>
+                  <S.ListItem
+                    onClick={() => alert("Link to reservation adding tool")}
+                  >
+                    <span style={{ paddingRight: "4px" }}>
+                      Add reservations
+                    </span>
+                    <FontAwesomeIcon icon={faCirclePlus} />
+                  </S.ListItem>
+                  <S.ListItem onClick={logout}>
                     <span style={{ paddingRight: "4px" }}>Logout</span>
                     <FontAwesomeIcon icon={faArrowRightFromBracket} />
-                  </li>
+                  </S.ListItem>
                 </ul>
               </Offcanvas.Body>
             </Navbar.Offcanvas>

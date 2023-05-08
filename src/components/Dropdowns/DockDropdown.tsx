@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -19,10 +19,10 @@ export const DockDropdown: React.FC<Props> = ({
   docks,
   selectedDock,
   setSelectedDock,
+  dockId,
   weekNr,
 }) => {
   const navigate = useNavigate();
-
   const handleSetDock = (e: string) => {
     const idToNumber: number = +e;
     const foundDock = getDockFromId(idToNumber);

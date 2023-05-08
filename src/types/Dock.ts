@@ -1,3 +1,5 @@
+import { Timeslot } from "./Timeslot";
+
 export interface Dock {
   id: number;
   active: boolean;
@@ -7,4 +9,6 @@ export interface Dock {
     closing_time: string;
     warehouseId: number;
   };
+  timeslots: Timeslot[];
+  maxTimeslotQuarterCapacity: number;
 }

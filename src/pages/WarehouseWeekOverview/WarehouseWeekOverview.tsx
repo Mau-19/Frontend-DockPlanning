@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -25,7 +24,6 @@ interface Props {
   daysOfTheWeek: string[];
   weekNr: number;
   dockId: string | undefined;
-  warehouses: Warehouse[];
   setSelectedWarehouse: React.Dispatch<React.SetStateAction<Warehouse>>;
   selectedWarehouse: Warehouse;
   filteredDocks: Dock[];
@@ -41,7 +39,6 @@ export const WarehouseWeekOverview: React.FC<Props> = ({
   incrementWeek,
   weekNr,
   dockId,
-  warehouses,
   setSelectedWarehouse,
   selectedWarehouse,
   filteredDocks,
@@ -100,7 +97,6 @@ export const WarehouseWeekOverview: React.FC<Props> = ({
 
             <div>
               <WarehouseDropdown
-                warehouses={warehouses}
                 setSelectedWarehouse={setSelectedWarehouse}
                 selectedWarehouse={selectedWarehouse}
               />

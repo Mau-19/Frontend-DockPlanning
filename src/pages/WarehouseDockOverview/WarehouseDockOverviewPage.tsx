@@ -224,7 +224,6 @@ export const WarehouseDockOverviewPage = () => {
             }}
           >
             <WarehouseDropdown
-              warehouses={warehouses}
               setSelectedWarehouse={setSelectedWarehouse}
               selectedWarehouse={selectedWarehouse}
             />

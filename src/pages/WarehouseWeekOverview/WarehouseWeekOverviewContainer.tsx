@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
@@ -11,6 +12,8 @@ import { Timeslot } from "../../types/Timeslot";
 import { WarehouseWeekOverview } from "./WarehouseWeekOverview";
 import { daysOfTheWeek } from "../../../SampleData";
 import { TimeslotByDay } from "../../types/Timeslot";
+import { getDocksByWarehouseId } from "../../api/apiDocks";
+import { getTimeslotsByDockWeekAndYear } from "../../api/apiTimeslots";
 
 export const WareHouseWeekOverviewContainer = () => {
   const sample: TimeslotByDay = {
@@ -29,7 +32,7 @@ export const WareHouseWeekOverviewContainer = () => {
   const [filteredDocks, setFilteredDocks] = useState<Dock[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState({
-    id: 0,
+    id: 1,
     description: "",
   });
   const [selectedDock, setSelectedDock] = useState<Dock>();
@@ -40,6 +43,17 @@ export const WareHouseWeekOverviewContainer = () => {
   const [weekNumber, setWeekNumber] = useState<number>(weekNrFromParams);
 
   const navigate = useNavigate();
+
+  const { data: dockData, isLoading: isDocksLoading } = useQuery(
+    ["docks"],
+    () => getDocksByWarehouseId(selectedWarehouse?.id)
+  );
+
+  const { data: timeslotsData, isLoading: isTimeslotsLoading } = useQuery(
+    ["timeslots"],
+    () =>
+      getTimeslotsByDockWeekAndYear(dockIdFromParams, weekNrFromParams, 2023)
+  );
 
   const apiHostAddress = import.meta.env.VITE_NODE_API_HOST;
   const user = JSON.parse(localStorage.getItem("user") || "");
@@ -71,14 +85,14 @@ export const WareHouseWeekOverviewContainer = () => {
   };
 
   // Finds warehouse from dock with id.
-  const determineSelectedWarehouse = (
-    warehouseList: Warehouse[],
-    dockFromParams: Dock | undefined
-  ) => {
-    return warehouseList.find(
-      (warehouse) => warehouse.id === dockFromParams?.params.warehouseId
-    );
-  };
+  // const determineSelectedWarehouse = (
+  //   warehouseList: Warehouse[],
+  //   dockFromParams: Dock | undefined
+  // ) => {
+  //   return warehouseList.find(
+  //     (warehouse) => warehouse.id === dockFromParams?.params.warehouseId
+  //   );
+  // };
 
   const findDockFromParams = (dockList: Dock[]) => {
     return dockList.find((dock) => dock.id === dockIdFromParams);
@@ -96,7 +110,7 @@ export const WareHouseWeekOverviewContainer = () => {
   //Fetch Data and set states
   useEffect(() => {
     const fetchData = async () => {
-      const warehouseData = await axios.get(`${apiHostAddress}/warehouse/list`);
+      // const warehouseData = await axios.get(`${apiHostAddress}/warehouse/list`);
       const dockData = await axios.get(
         `${apiHostAddress}/warehouse/list_docks`,
         {
@@ -110,20 +124,16 @@ export const WareHouseWeekOverviewContainer = () => {
         }
       );
 
-      if (
-        warehouseData.status == 200 &&
-        dockData.status == 200 &&
-        timeSlotData.status == 200
-      ) {
-        setWarehouses(warehouseData.data);
+      if (dockData.status == 200 && timeSlotData.status == 200) {
+        // setWarehouses(warehouseData.data);
         setDocks(dockData.data);
         const dockFromParams = findDockFromParams(dockData.data);
         setSelectedDock(dockFromParams);
-        const warehouseFromDock = determineSelectedWarehouse(
-          warehouseData.data,
-          dockFromParams
-        );
-        setSelectedWarehouse(warehouseFromDock);
+        // const warehouseFromDock = determineSelectedWarehouse(
+        //   warehouseData.data,
+        //   dockFromParams
+        // );
+        // setSelectedWarehouse(warehouseFromDock);
         setTimeslots(timeSlotData.data);
         const filterTimeslots = filterTimeSlotsOnWeek(timeSlotData.data);
         setFilteredTimeslots(filterTimeslots);
@@ -180,7 +190,6 @@ export const WareHouseWeekOverviewContainer = () => {
       daysOfTheWeek={daysOfTheWeek}
       weekNr={weekNrFromParams}
       dockId={dockId}
-      warehouses={warehouses}
       setSelectedWarehouse={setSelectedWarehouse}
       selectedWarehouse={selectedWarehouse}
       filteredDocks={filteredDocks}

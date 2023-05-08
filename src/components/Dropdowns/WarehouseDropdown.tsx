@@ -1,8 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
 
+import { useQuery } from "@tanstack/react-query";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
+
+import { getWarehouses } from "../../api/apiWarehouses";
 
 import { Warehouse } from "../../types/Warehouse";
 
@@ -12,16 +15,15 @@ interface Month {
 }
 
 interface Props {
-  warehouses: Warehouse[] | [];
   setSelectedWarehouse: Dispatch<SetStateAction<Warehouse>>;
   selectedWarehouse: Warehouse;
 }
 
 export const WarehouseDropdown: React.FC<Props> = ({
-  warehouses,
   setSelectedWarehouse,
   selectedWarehouse,
 }) => {
+  const { data: warehouses } = useQuery(["warehouses"], getWarehouses);
   const handleSetWarehouse = (e: number) => {
     const warehouseIdToNumber: number = +e;
     const foundWarehouse = warehouses.find(

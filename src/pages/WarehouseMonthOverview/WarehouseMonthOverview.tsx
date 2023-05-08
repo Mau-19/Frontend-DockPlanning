@@ -13,8 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { getWarehouses } from "../../api/apiWarehouses";
-import { getDocks } from "../../api/apiDocks";
-import { getTimeslots } from "../../api/apiTimeslots";
+import { getDocksByWarehouseMonthAndYear } from "../../api/apiDocks";
 
 import { MonthSidebar } from "./Sidebar/MonthSidebar";
 import { DockOverview } from "./DockOverview";
@@ -24,20 +23,15 @@ import { YearDropdown } from "../../components/Dropdowns/YearDropdown";
 
 import { Dock } from "../../types/Dock";
 import { Warehouse } from "../../types/Warehouse";
-import { Timeslot } from "../../types/Timeslot";
-import { TimeslotByWeekNr } from "../../types/Timeslot";
 
 export const WarehouseMonthOverview = () => {
   const currentYear: number = DateTime.now().year;
   const currentMonth: number = DateTime.now().month;
 
-  const [filteredDocks, setFilteredDocks] = useState<Dock[]>([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse>();
   const [weeks, setWeeks] = useState<number[]>([DateTime.now().weekNumber]);
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
-  const [filteredTimeslots, setFilteredTimeslots] = useState<Timeslot[]>([]);
-  const [timeslotsByWeekNr, setTimeslotsByWeekNr] = useState({});
 
   const { data: warehouses = [], isLoading: isWarehousesLoading } = useQuery(
     ["warehouses"],
@@ -45,15 +39,16 @@ export const WarehouseMonthOverview = () => {
   );
 
   const { data: docks = [], isLoading: isDocksLoading } = useQuery(
-    ["docks"],
-    getDocks
+    ["docks", selectedWarehouse?.id, month, year],
+    () => getDocksByWarehouseMonthAndYear(selectedWarehouse?.id, month, year)
   );
 
-  const {
-    data: timeslots = [],
-    isLoading: isTimeslotsLoading,
-    error,
-  } = useQuery(["timeslots"], getTimeslots);
+  const getWeekNumber = (year: number, month: number, day: number) => {
+    const date = new Date(Date.UTC(year, month - 1, day));
+    date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+  };
 
   /**
    * Function that generates a list of weeks numbers based on given
@@ -66,58 +61,24 @@ export const WarehouseMonthOverview = () => {
     year: number = DateTime.now().year,
     month: number
   ) => {
-    const first: number = DateTime.local(year, month).startOf(
-      "month"
-    ).weekNumber;
-    const last: number = DateTime.local(year, month).endOf("month").weekNumber;
+    const firstDay = DateTime.local(year, month, 1);
+    const lastDay = DateTime.local(year, month, firstDay.daysInMonth);
     const weeks: number[] = [];
 
-    for (let i = first; i <= last; i++) {
-      weeks.push(i);
+    let currentDay = firstDay;
+
+    while (currentDay <= lastDay) {
+      const weekNumber = getWeekNumber(
+        currentDay.year,
+        currentDay.month,
+        currentDay.day
+      );
+      if (!weeks.includes(weekNumber)) {
+        weeks.push(weekNumber);
+      }
+      currentDay = currentDay.plus({ days: 1 });
     }
     setWeeks(weeks);
-  };
-
-  const filterTimeslotOnWarehouse = (timeslots: Timeslot[]) => {
-    const filterTimeslots = timeslots.filter(
-      (timeslot) => timeslot.params.warehouseId == selectedWarehouse?.id
-    );
-    return filterTimeslots;
-  };
-
-  const groupTimeslotsByWeekNr = (
-    timeslots: Timeslot[] | undefined,
-    timeslotsByWeekNr: TimeslotByWeekNr
-  ) => {
-    const newTimeslotsByWeekNr: TimeslotByWeekNr = {};
-    timeslots?.forEach((timeslot) => {
-      const timeslotToDateTime = DateTime.fromISO(timeslot?.start_time);
-      const timeslotWeekNr = timeslotToDateTime?.weekNumber;
-      if (timeslotWeekNr in timeslotsByWeekNr) {
-        if (!newTimeslotsByWeekNr[timeslotWeekNr]) {
-          newTimeslotsByWeekNr[timeslotWeekNr] = [];
-        }
-        newTimeslotsByWeekNr[timeslotWeekNr]?.push(timeslot);
-      }
-    });
-    const updatedTimeslots = updateTimeslotsByWeekNr(
-      timeslotsByWeekNr,
-      newTimeslotsByWeekNr
-    );
-    setTimeslotsByWeekNr(updatedTimeslots);
-  };
-
-  const updateTimeslotsByWeekNr = (
-    timeslotsByWeekNr: TimeslotByWeekNr,
-    newTimeslotsByWeekNr: TimeslotByWeekNr
-  ): TimeslotByWeekNr => {
-    const updatedTimeslotsByWeekNr = { ...timeslotsByWeekNr };
-    Object.keys(newTimeslotsByWeekNr).forEach((week: number) => {
-      if (week in updatedTimeslotsByWeekNr) {
-        updatedTimeslotsByWeekNr[week] = newTimeslotsByWeekNr[week];
-      }
-    });
-    return updatedTimeslotsByWeekNr;
   };
 
   useEffect(() => {
@@ -128,41 +89,12 @@ export const WarehouseMonthOverview = () => {
 
   //Fetch data
   useEffect(() => {
-    setFilteredTimeslots(timeslots);
     getWeeksInMonth(year, month);
   }, []);
 
   useEffect(() => {
     getWeeksInMonth(undefined, month);
   }, [month]);
-
-  useEffect(() => {
-    const timeslotsByWarehouse = filterTimeslotOnWarehouse(timeslots);
-    setFilteredTimeslots(timeslotsByWarehouse);
-  }, [selectedWarehouse]);
-
-  useEffect(() => {
-    setFilteredDocks(docks);
-    filterDocksOnSelectedWarehouse();
-  }, [selectedWarehouse]);
-
-  useEffect(() => {
-    // Group timeslots array on their corresponding week numbers
-    const newWeeksToObject = weeks?.reduce((acc, week) => {
-      return {
-        ...acc,
-        [week]: [],
-      };
-    }, {});
-    groupTimeslotsByWeekNr(filteredTimeslots, newWeeksToObject);
-  }, [weeks, filteredTimeslots]);
-
-  const filterDocksOnSelectedWarehouse = () => {
-    const filterDocks = docks.filter(
-      (dock) => dock.params.warehouseId == selectedWarehouse?.id
-    );
-    setFilteredDocks(filterDocks);
-  };
 
   const incrementMonth = () => {
     setMonth(() => month + 1);
@@ -172,7 +104,7 @@ export const WarehouseMonthOverview = () => {
     setMonth(() => month - 1);
   };
 
-  if (isWarehousesLoading || isDocksLoading || isTimeslotsLoading) {
+  if (isWarehousesLoading || isDocksLoading) {
     return (
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Spinner animation="border" role="status">
@@ -198,7 +130,11 @@ export const WarehouseMonthOverview = () => {
               }}
             />
           </div>
-          <MonthSidebar timeslotsByWeekNr={timeslotsByWeekNr} />
+          <MonthSidebar
+            warehouseId={selectedWarehouse?.id}
+            weekNumbers={weeks}
+            year={year}
+          />
           <div style={{ display: "flex", justifyContent: "center" }}>
             <FontAwesomeIcon
               icon={faCircleChevronDown}
@@ -221,14 +157,13 @@ export const WarehouseMonthOverview = () => {
               }}
             >
               <WarehouseDropdown
-                warehouses={warehouses}
                 setSelectedWarehouse={setSelectedWarehouse}
                 selectedWarehouse={selectedWarehouse}
               />
               <MonthDropdown setMonth={setMonth} month={month} />
               <YearDropdown years={[2020, 2021, 2023]} />
             </div>
-            <DockOverview docks={filteredDocks} weeks={weeks} />
+            <DockOverview weeks={weeks} docks={docks} />
           </div>
         </Col>
       </Row>

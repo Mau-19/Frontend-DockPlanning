@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 
-import axios from "axios";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";
@@ -28,7 +27,6 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
     Thursday: [],
     Friday: [],
   };
-  const apiHostAddress = import.meta.env.VITE_NODE_API_HOST;
   const [timeslots, setTimeslots] = useState<Timeslot[]>([]);
   const [timeslotsByDay, setTimeslotsByDay] = useState<TimeslotByDay>({});
   const [capacityPercentage, setCapacityPercentage] = useState(0);
@@ -37,39 +35,21 @@ export const DockOverviewCard: React.FC<Props> = ({ dock, weekNr }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTimeslots = async () => {
-      const response = await axios.post(
-        `${apiHostAddress}/timeslot/list_by_dock`,
-        {
-          dockId: dock?.id,
-        }
-      );
-      if (response.status === 200) {
-        checkIfTimeslotsInCurrentWeek(response.data);
-        groupTimeslotsByWeekDay(response.data);
-      }
-    };
-    fetchTimeslots();
+    checkIfTimeslotsInCurrentWeek(dock.timeslots);
   }, [weekNr, dock]);
 
   useEffect(() => {
-    const dockMax = calculateDockMaxCapacity(dock);
-    const timeslotMax = calculateTimeslotCapacity(timeslots);
-    setCapacityPercentage(calculateCapacityPercentage(dockMax, timeslotMax));
-  }, [dock, timeslots]);
+    const timeslotMax = calculateTimeslotCapacity(dock.timeslots);
+    setCapacityPercentage(
+      calculateCapacityPercentage(dock?.maxTimeslotQuarterCapacity, timeslotMax)
+    );
+  }, [dock]);
 
   const calculateCapacityPercentage = (
     dockCapacity: number,
     totalTimeslots: number
   ) => {
     return (totalTimeslots / dockCapacity) * 100;
-  };
-
-  const calculateDockMaxCapacity = (dock: Dock) => {
-    const startTime = DateTime.fromISO(dock?.params.opening_time);
-    const endTime = DateTime.fromISO(dock?.params.closing_time);
-    const difference = endTime.diff(startTime).as("minutes") / 15;
-    return difference;
   };
 
   const calculateTimeslotCapacity = (timeslots: Timeslot[]) => {

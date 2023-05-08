@@ -1,8 +1,10 @@
+import { useQueryClient } from "@tanstack/react-query";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 
 import { DockOverviewCard } from "./DockOverviewCard";
 import { Dock } from "../../types/Dock";
+import { useEffect } from "react";
 
 interface Props {
   docks: Dock[];
@@ -10,6 +12,7 @@ interface Props {
 }
 
 export const DockOverview: React.FC<Props> = ({ docks, weeks }) => {
+  useEffect(() => console.log(docks), [docks]);
   return (
     <Container
       fluid
