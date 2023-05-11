@@ -26,7 +26,6 @@ export const clientFetch = async (
   if (options?.authenticatedRoute) {
     const userJson = localStorage.getItem("user");
     const user = userJson ? JSON.parse(userJson) : "";
-
     headers = {
       "x-access-token": user?.accessToken,
     };
@@ -44,9 +43,15 @@ export const clientFetch = async (
     }
     case ClientFetchHttpMethod.POST: {
       try {
-        const response = await api.post(`${apiHostAddress}${url}`, {
-          ...options?.body,
-        });
+        const response = await api.post(
+          `${apiHostAddress}${url}`,
+          {
+            ...options?.body,
+          },
+          {
+            headers,
+          }
+        );
         return response.data;
       } catch (error) {
         console.error(error);

@@ -1,3 +1,8 @@
+import { useState, useEffect } from "react";
+
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
+import { DateTime } from "luxon";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -7,10 +12,15 @@ import {
   faCircleChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { getDocksByWarehouseId } from "../../api/apiDocks";
+import { getTimeslotsByDockWeekAndYear } from "../../api/apiTimeslots";
+import { getWarehouses } from "../../api/apiWarehouses";
+
 import { OrderOverview } from "./components/OrderOverview";
 import { WeekDaySidebar } from "./components/WeekDaySidebar";
 import { DockDropdown } from "../../components/Dropdowns/DockDropdown";
 import { WarehouseDropdown } from "../../components/Dropdowns/WarehouseDropdown";
+import { YearDropdown } from "../../components/Dropdowns/YearDropdown";
 import { WeekNavigator } from "../../components/WeekNavigation/WeekNavigator";
 
 import { Dock } from "../../types/Dock";
@@ -18,36 +28,97 @@ import { Warehouse } from "../../types/Warehouse";
 import { Timeslot } from "../../types/Timeslot";
 import { TimeslotByDay } from "../../types/Timeslot";
 
-interface Props {
-  decrementWeek: () => void;
-  incrementWeek: () => void;
-  daysOfTheWeek: string[];
-  weekNr: number;
-  dockId: string | undefined;
-  setSelectedWarehouse: React.Dispatch<React.SetStateAction<Warehouse>>;
-  selectedWarehouse: Warehouse;
-  filteredDocks: Dock[];
-  selectedDock: Dock | undefined;
-  setSelectedDock: React.Dispatch<React.SetStateAction<Dock | undefined>>;
-  filteredTimeslots: Timeslot[] | undefined;
-  timeslotsByDay: TimeslotByDay | undefined;
-  dockTimeslotCapacity: number;
+interface timeslotByDaySet {
+  [key: string]: Set<Timeslot>;
 }
 
-export const WarehouseWeekOverview: React.FC<Props> = ({
-  decrementWeek,
-  incrementWeek,
-  weekNr,
-  dockId,
-  setSelectedWarehouse,
-  selectedWarehouse,
-  filteredDocks,
-  selectedDock,
-  setSelectedDock,
-  filteredTimeslots,
-  timeslotsByDay,
-  dockTimeslotCapacity,
-}) => {
+export const WarehouseWeekOverview = () => {
+  const days: TimeslotByDay = {
+    Monday: [],
+    Tuesday: [],
+    Wednesday: [],
+    Thursday: [],
+    Friday: [],
+  };
+
+  const { dockId, weekNr } = useParams();
+  const weekNrFromParams: number = +weekNr;
+  const dockIdFromParams: number = +dockId;
+
+  const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse>();
+  const [selectedDock, setSelectedDock] = useState<Dock>();
+  const [timeslotsByDay, setTimeslotsByDay] = useState<TimeslotByDay>(days);
+
+  const navigate = useNavigate();
+
+  const { data: warehouses = [], isLoading: isWarehousesLoading } = useQuery(
+    ["warehouses"],
+    getWarehouses
+  );
+
+  const { data: docks, isLoading: isDocksLoading } = useQuery(
+    ["docks", selectedWarehouse],
+    () => getDocksByWarehouseId(selectedWarehouse?.id)
+  );
+  const { data: timeslots, isLoading: isTimeslotsLoading } = useQuery(
+    ["timeslots", weekNr, dockId],
+    () =>
+      getTimeslotsByDockWeekAndYear(dockIdFromParams, weekNrFromParams, 2023)
+  );
+
+  const groupTimeslotsByWeekDay = (timeslots: Timeslot[] | undefined) => {
+    const daysWithSet: timeslotByDaySet = {
+      Monday: new Set<Timeslot>(),
+      Tuesday: new Set<Timeslot>(),
+      Wednesday: new Set<Timeslot>(),
+      Thursday: new Set<Timeslot>(),
+      Friday: new Set<Timeslot>(),
+    };
+    timeslots?.forEach((timeslot) => {
+      const startTime = DateTime.fromISO(timeslot.start_time);
+      const dayOfWeek = startTime.toFormat("EEEE");
+
+      if (dayOfWeek in daysWithSet) {
+        daysWithSet[dayOfWeek].add(timeslot);
+      }
+    });
+
+    const newTimeslotsByDay: TimeslotByDay = {};
+
+    for (const dayOfWeek in days) {
+      newTimeslotsByDay[dayOfWeek] = Array.from(daysWithSet[dayOfWeek]);
+    }
+    setTimeslotsByDay(newTimeslotsByDay);
+  };
+
+  const incrementWeek = () => {
+    if (weekNrFromParams != 52) {
+      const navigateWeek = weekNrFromParams + 1;
+      navigate(`/dock/${dockId}/${navigateWeek}`);
+    }
+  };
+
+  const decrementWeek = () => {
+    if (weekNrFromParams != 1) {
+      const navigateWeek = weekNrFromParams - 1;
+      navigate(`/dock/${dockId}/${navigateWeek}`);
+    }
+  };
+
+  useEffect(() => {
+    groupTimeslotsByWeekDay(timeslots);
+  }, [timeslots]);
+
+  useEffect(() => {
+    if (warehouses?.length > 0) {
+      setSelectedWarehouse(warehouses[0]);
+    }
+  }, [warehouses]);
+
+  useEffect(() => {
+    setSelectedDock(docks?.find((dock) => dock?.id === dockIdFromParams));
+  }, [docks]);
+
   return (
     <Container fluid>
       <Row style={{ maxHeight: "calc(100vh - 71px)" }}>
@@ -66,7 +137,7 @@ export const WarehouseWeekOverview: React.FC<Props> = ({
           </div>
           <WeekDaySidebar
             timeslotsByDay={timeslotsByDay}
-            dockTimeslotCapacity={dockTimeslotCapacity}
+            dockTimeslotCapacity={selectedDock?.maxTimeslotQuarterCapacity}
           />
           <div style={{ display: "flex", justifyContent: "center" }}>
             <FontAwesomeIcon
@@ -89,10 +160,10 @@ export const WarehouseWeekOverview: React.FC<Props> = ({
             }}
           >
             <WeekNavigator weekNr={weekNr} dockId={dockId} />
-            {filteredTimeslots?.length == 1 ? (
+            {timeslots?.length == 1 ? (
               <h3>1 reservation</h3>
             ) : (
-              <h3>{filteredTimeslots?.length} Reservations</h3>
+              <h3>{timeslots?.length} Reservations</h3>
             )}
 
             <div>
@@ -100,20 +171,17 @@ export const WarehouseWeekOverview: React.FC<Props> = ({
                 setSelectedWarehouse={setSelectedWarehouse}
                 selectedWarehouse={selectedWarehouse}
               />
-              {filteredDocks && (
-                <DockDropdown
-                  docks={filteredDocks}
-                  weekNr={weekNr}
-                  selectedDock={selectedDock}
-                  setSelectedDock={setSelectedDock}
-                />
-              )}
+              <DockDropdown
+                docks={docks}
+                weekNr={weekNr}
+                selectedDock={selectedDock}
+                setSelectedDock={setSelectedDock}
+                dockId={dockIdFromParams}
+              />
+              <YearDropdown years={[2021, 2022, 2023]} />
             </div>
           </div>
-          <OrderOverview
-            timeslots={filteredTimeslots}
-            timeslotsByDay={timeslotsByDay}
-          />
+          <OrderOverview timeslotsByDay={timeslotsByDay} />
         </Col>
       </Row>
     </Container>

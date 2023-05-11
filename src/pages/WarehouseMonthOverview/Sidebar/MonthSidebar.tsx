@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import Row from "react-bootstrap/Row";
+import Spinner from "react-bootstrap/Spinner";
 import { motion } from "framer-motion";
 
 import { getTimeslotsByWeekNumbers } from "../../../api/apiTimeslots";
@@ -22,7 +23,13 @@ export const MonthSidebar: React.FC<Props> = ({
       getTimeslotsByWeekNumbers(warehouseId, year, weekNumbers)
     );
   if (isTimeslotsLoading) {
-    return <h1>Loading...</h1>;
+    return (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
   }
   return (
     <div

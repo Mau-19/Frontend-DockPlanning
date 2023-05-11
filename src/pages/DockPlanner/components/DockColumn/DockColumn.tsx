@@ -1,8 +1,9 @@
 import Col from "react-bootstrap/Col";
 import { DockColumnCard } from "../DockColumnCard/DockColumnCard";
+import { Dock } from "../../../../types/Dock";
 
 interface Props {
-  dock: any[];
+  dock: Dock[];
 }
 
 export const DockColumn: React.FC<Props> = ({ dock }) => {
@@ -29,7 +30,7 @@ export const DockColumn: React.FC<Props> = ({ dock }) => {
         <h3>{dock?.code}</h3>
       </div>
       {dock.timeslots.map((timeslot) => (
-        <DockColumnCard timeslot={timeslot} />
+        <DockColumnCard key={timeslot.id} timeslot={timeslot} />
       ))}
     </Col>
   );

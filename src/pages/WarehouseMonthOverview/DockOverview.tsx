@@ -12,7 +12,6 @@ interface Props {
 }
 
 export const DockOverview: React.FC<Props> = ({ docks, weeks }) => {
-  useEffect(() => console.log(docks), [docks]);
   return (
     <Container
       fluid

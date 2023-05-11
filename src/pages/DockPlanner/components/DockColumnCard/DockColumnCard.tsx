@@ -1,17 +1,20 @@
 import { useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
+import { DateTime } from "luxon";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faSave, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import { faPen } from "@fortawesome/free-solid-svg-icons";
 import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
-import { DateTime } from "luxon";
+import Spinner from "react-bootstrap/Spinner";
+
+import { EditTimeslotModal } from "../EditTimeslotModal/EditTimeslotModal";
+
+import { getCargoById } from "../../../../api/apiCargo";
 
 import { Timeslot } from "../../../../types/Timeslot";
-import { getCargoById } from "../../../../api/apiCargo";
-import { EditTimeslotModal } from "../EditTimeslotModal/EditTimeslotModal";
 
 interface Props {
   timeslot: Timeslot;
@@ -46,7 +49,11 @@ export const DockColumnCard: React.FC<Props> = ({ timeslot }) => {
     <>
       <Modal show={showCargo} onHide={() => setShowCargo(false)}>
         {isLoading ? (
-          <h1>Loading...</h1>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </div>
         ) : (
           <>
             <Modal.Header

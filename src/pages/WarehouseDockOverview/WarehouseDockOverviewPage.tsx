@@ -16,7 +16,6 @@ import { WarehouseDropdown } from "../../components/Dropdowns/WarehouseDropdown"
 import { WarehouseDockOverview } from "./components/WarehouseDockOverview/WarehouseDockOverview";
 import { DockSidebar } from "./components/Sidebar/DockSidebar";
 import { WeekPicker } from "./components/WeekPicker/WeekPicker";
-// import { WeekNavigator } from "../../components/WeekNavigation/WeekNavigator";
 
 import { Dock } from "../../types/Dock";
 import { Warehouse } from "../../types/Warehouse";

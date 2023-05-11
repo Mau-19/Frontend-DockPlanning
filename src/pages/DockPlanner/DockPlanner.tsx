@@ -1,40 +1,44 @@
 import { useState, useEffect } from "react";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
+
 import Stack from "react-bootstrap/Stack";
+import Spinner from "react-bootstrap/Spinner";
 
 import { DockColumn } from "./components/DockColumn/DockColumn";
 
 import { getDocksByDate } from "../../api/apiDocks";
-import { Warehouse } from "../../types/Warehouse";
+import { getWarehouses } from "../../api/apiWarehouses";
+
 import { WarehouseDropdown } from "../../components/Dropdowns/WarehouseDropdown";
+
+import { Warehouse } from "../../types/Warehouse";
+import { Dock } from "../../types/Dock";
 
 export const DockPlanner = () => {
   const todaysDate = DateTime.local().toISODate();
-  const queryClient = useQueryClient();
-  const warehouses = queryClient.getQueryData(["warehouses"]);
 
   const [date, setDate] = useState(todaysDate);
-  const [docks, setDocks] = useState([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse>();
-
-  useEffect(() => {
-    const e = async () => {
-      const s = await getDocksByDate(selectedWarehouse?.id, date);
-      if (s) {
-        setDocks(s);
-      }
-    };
-    e();
-  }, [date, selectedWarehouse]);
+  const { data: warehouses = [], isLoading: isWarehousesLoading } = useQuery(
+    ["warehouses"],
+    getWarehouses
+  );
+  const { data: docks, isLoading: isDocksLoading } = useQuery<Dock[]>(
+    ["docks", selectedWarehouse?.id, date],
+    () => getDocksByDate(selectedWarehouse?.id, date),
+    {
+      enabled: !!selectedWarehouse,
+    }
+  );
 
   useEffect(() => {
     if (warehouses) {
       setSelectedWarehouse(warehouses[0]);
     }
   }, [warehouses]);
-  console.log("helo");
+
   return (
     <div
       style={{
@@ -57,11 +61,19 @@ export const DockPlanner = () => {
           />
         </div>
       </Stack>
-      <div style={{ display: "flex", overflowX: "auto", width: "100%" }}>
-        {docks.map((dock) => (
-          <DockColumn dock={dock} />
-        ))}
-      </div>
+      {isDocksLoading ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      ) : (
+        <div style={{ display: "flex", overflowX: "auto", width: "100%" }}>
+          {docks?.map((dock, index) => (
+            <DockColumn key={index} dock={dock} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

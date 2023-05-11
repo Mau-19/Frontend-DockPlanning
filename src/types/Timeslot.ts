@@ -8,7 +8,9 @@ export interface Timeslot {
     locationId: number;
     warehouseId: number;
   };
+  identifier: string;
   cargoTypeId: number;
+  warehouseId: number;
 }
 
 export interface TimeslotByDay {

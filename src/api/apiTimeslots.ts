@@ -1,22 +1,10 @@
-import { Dock } from "../types/Dock";
+import { Timeslot } from "../types/Timeslot";
 import { ClientFetchHttpMethod, clientFetch } from "./apiUtil";
 
 export const getTimeslots = async () => {
   return await clientFetch(ClientFetchHttpMethod.GET, `/timeslot/list`, {
     authenticatedRoute: true,
   });
-};
-
-export const getTimeslotsByDockId = async (dock: Dock) => {
-  return await clientFetch(
-    ClientFetchHttpMethod.POST,
-    `/timeslot/list_by_dock`,
-    {
-      body: {
-        dockId: dock?.id,
-      },
-    }
-  );
 };
 
 export const getTimeslotsByWeekNumbers = async (
@@ -44,4 +32,43 @@ export const getTimeslotsByDockWeekAndYear = async (
     ClientFetchHttpMethod.GET,
     `/timeslot/${dockId}/get_timeslots_by_week/${weekNumber}/${year}`
   );
+};
+
+export const moveTimeslot = async (
+  timeslotId: number,
+  startDateTime: string,
+  endDateTime: string,
+  dockId: number
+) => {
+  return await clientFetch(
+    ClientFetchHttpMethod.POST,
+    `/timeslot/${timeslotId}/move_timeslot`,
+    {
+      body: {
+        startDateTime: startDateTime,
+        endDateTime: endDateTime,
+        dockId: dockId,
+      },
+    }
+  );
+};
+
+export const deleteTimeslot = async (timeslot: Timeslot) => {
+  if (timeslot.identifier !== undefined) {
+    return await clientFetch(
+      ClientFetchHttpMethod.POST,
+      `/timeslot/remove_by_identifier`,
+      {
+        body: {
+          identifier: timeslot.identifier,
+        },
+      }
+    );
+  }
+  return await clientFetch(ClientFetchHttpMethod.POST, `/timeslot/remove`, {
+    body: {
+      timeslotId: timeslot.id,
+    },
+    authenticatedRoute: true,
+  });
 };
