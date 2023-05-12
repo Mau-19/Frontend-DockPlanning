@@ -16,4 +16,6 @@ Before running the application make sure you have the following things:
 
 ### Running the application
 
-To run the application, open your terminal and make sure you're on this level: "Front-end-dock-planning" and make sure you've ran "npm install" for the dependencies. In the opened terminal, run the following command: "npm run dev" (without quotation marks). This command will start the vite application, after a couple seconds your terminal will display a message that says the server is running on port 5173. Go to http://localhost:5173/ in your browser to get to the application. You will be greeted by the login screen.
+To run the application, open your terminal and make sure you're on this level: "Front-end-dock-planning" and make sure you've ran "npm install" for the dependencies. In the opened terminal, run the following command: "npm run dev" (without quotation marks). This command will start the vite application.
+
+After a couple seconds your terminal will display a message that says the server is running on port 5173. Go to http://localhost:5173/ in your browser to get to the application. You will be greeted by the login screen.
