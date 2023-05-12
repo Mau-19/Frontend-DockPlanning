@@ -58,5 +58,3 @@ export const months = [
 ];
 
 export const years = [2021, 2022, 2023, 2024];
-
-export const warehouses = ["Magazijn 1", "Magazijn 2", "Magazijn 3"];
